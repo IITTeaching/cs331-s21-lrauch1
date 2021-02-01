@@ -22,7 +22,14 @@ def captured_output():
 
 # implement this function
 def is_perfect(n):
-    pass
+    sum = 0
+    for i in range(1,n):
+        if n%i == 0:
+            sum+=i
+    if sum == n:
+        return True
+    else:
+        return False
 
 # (3 points)
 def test1():
@@ -40,7 +47,13 @@ def test1():
 
 # implement this function
 def multiples_of_3_and_5(n):
-    pass
+    sum = 0
+    for i in range(1,n):
+        if i%3==0:
+            sum+=i
+        elif i%5==0:
+            sum+=i
+    return sum
 
 # (3 points)
 def test2():
@@ -67,7 +80,18 @@ def test3():
 
 # implement this function
 def gen_pattern(chars):
-    pass
+    x = len(chars)
+    y = chars[::-1]
+    for i in range(1,x+1):
+        s = y[0:i]+chars[x-i+1:x]
+        st = '.'.join(s)
+        strin = st.center(2*x+(2*x-3),'.')
+        print(strin)
+    for j in range(1,x):
+        s = y[0:x-j]+chars[j+1:x]
+        st = '.'.join(s)
+        strin = st.center(2*x+(2*x-3),'.')
+        print(strin)
 
 def test4():
     tc = unittest.TestCase()
