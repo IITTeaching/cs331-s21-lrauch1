@@ -68,6 +68,7 @@ def test2():
 def integer_right_triangles(p):
     listed = [(a,b,c) for a in range(1,p) for b in range(a,p) for c in range(b,p) if a**2+b**2==c**2 and a+b+c == p]
     return len(listed)
+    
 def test3():
     tc = unittest.TestCase()
     tc.assertEqual(integer_right_triangles(60), 2)
