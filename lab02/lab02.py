@@ -35,15 +35,17 @@ ROMEO_SOLILOQUY = """
 def compute_ngrams(toks, n=2):
     """Returns an n-gram dictionary based on the provided list of tokens."""
     dictt = {}
-    for i in range(len(toks)-n):
+    for i in range(len(toks)-n+1):
         t = ()
-        for j in range(1,n+1):
+        for j in range(1,n):
             t = t + (toks[i+j],)
         check = dictt.get(toks[i])
-        if not type(check) is tuple:
-            dictt[toks[i]] = t
+        if check is None:
+            five = [t]
+            dictt[toks[i]] = five
         else:
-            dictt[toks[i]] = check + t
+            check.append(t)
+            dictt[toks[i]] = check
     return dictt
 
 
@@ -104,19 +106,28 @@ def test1_2():
 ################################################################################
 # Implement this function
 def gen_passage(ngram_dict, length=100):
-    t = 0
-    paragraph = ''
+    t = random.choice(sorted(ngram_dict))
+    paragraph = t
     l = 0
+    count = 1
     for i in range(length):
-        if t==0:
-            t = random.choice(sorted(ngram_dict))
         tupled = ngram_dict.get(t)
         if tupled is None:
             t = random.choice(sorted(ngram_dict))
-        for j in range(len(tupled)):
-            paragraph = paragraph + tupled()[j]
+            paragraph = paragraph + " " + t
+            count+=1
+            tupled = ngram_dict.get(t)
+        tup = random.choice(tupled)
+        if count == length:
+            return paragraph
+        for j in range(len(tup)):
+            paragraph = paragraph + " "+ tup[j]
             l = j
-        t = tupled()[l]
+            count+=1
+            if count == length:
+                return paragraph
+        t = tup[l]
+    return paragraph
 
 # 50 Points
 def test2():
