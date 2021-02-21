@@ -175,8 +175,6 @@ def test2_1():
     tc.assertFalse(p.search("Z"))
     tc.assertFalse(p.search("Y"))
     p = PrefixSearcher("Hello World!", 2)
-    print(p.list)
-    print(p.value)
     tc.assertTrue(p.search("l"))
     tc.assertTrue(p.search("ll"))
     tc.assertFalse(p.search("lW"))
@@ -200,20 +198,45 @@ class SuffixArray():
         """
         Creates a suffix array for document (a string).
         """
-        pass
+        self.list = []
+        self.doc = document
+        for i in range(0,len(document)):
+            self.list.append(i)
+        self.comparisoned = lambda x,y: 0 if document[x:] == document[y:] else (-1 if document[x:] < document[y:] else 1)
+        self.lst = mysort(self.list,self.comparisoned)
 
 
     def positions(self, searchstr: str):
         """
         Returns all the positions of searchstr in the documented indexed by the suffix array.
         """
-        pass
+        pos = []
+        for i in range(len(self.list)):
+            stir = self.doc[i:]
+            if searchstr == stir:
+                pos.append(i)
+            else:
+                for j in range(len(stir)):
+                    stirred = self.doc[i:j]
+                    if stirred == searchstr:
+                        pos.append(i)
+        return pos
 
     def contains(self, searchstr: str):
         """
-        Returns true of searchstr is coontained in document.
+        Returns true of searchstr is contained in document.
         """
-        pass
+        sear = lambda i,j: 0 if self.doc[i:j] == self.doc[i:j] else (-1 if self.doc[i:j] < self.doc[i:j] else 1)
+        for i in range(len(self.list)):
+            stir = self.doc[i:]
+            if searchstr == stir:
+                return True
+            else:
+                for j in range(len(stir)):
+                    stirred = self.doc[i:j]
+                    if stirred == searchstr:
+                        return True
+        return False
 
 # 40 Points
 def test3():
@@ -228,6 +251,7 @@ def test3_1():
     print("\t-suffixarray on Hello World!")
     tc = unittest.TestCase()
     s = SuffixArray("Hello World!")
+    print(s.list)
     tc.assertTrue(s.contains("l"))
     tc.assertTrue(s.contains("e"))
     tc.assertFalse(s.contains("h"))
