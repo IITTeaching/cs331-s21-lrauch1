@@ -140,10 +140,6 @@ class PrefixSearcher():
             self.list.append(document[j:len(document)])
         self.comparison = lambda x,y: 0 if x == y else (-1 if x < y else 1)
         self.lst = mysort(self.list,self.comparison)
-        self.uniquelist = []
-        for i in range(0,len(document)-1):
-            self.uniquelist.append(document[i:i+1])
-        self.uniquelist = mysort(self.uniquelist,self.comparison)
 
     def search(self, q):
         """
@@ -154,8 +150,8 @@ class PrefixSearcher():
         """
         if self.value < len(q):
             raise("q is longer than n")
-        
-        b = (mybinsearch(self.list,q,self.comparison)!=-1) or (mybinsearch(self.uniquelist,q,self.comparison)!=-1)
+        comparable = lambda x,y: 0 if x[0:len(y)] == y else (-1 if x[0:len(y)] < y else 1)
+        b = (mybinsearch(self.list,q,comparable)!=-1)
         return b
 
 # 30 Points
@@ -204,38 +200,43 @@ class SuffixArray():
             self.list.append(i)
         self.comparisoned = lambda x,y: 0 if document[x:] == document[y:] else (-1 if document[x:] < document[y:] else 1)
         self.lst = mysort(self.list,self.comparisoned)
-
+        #self.suffixed = []
+        #comp = lambda x,y: 0 if x == y else (-1 if x < y else 1)
+        #for i in range(0,len(document)):
+        #    sup = []
+        #    for j in range(i,len(document)):
+        #        sup.append(self.doc[i:j])
+        #        mysort(sup,comp)
+        #    self.suffixed.append(sup)
 
     def positions(self, searchstr: str):
         """
         Returns all the positions of searchstr in the documented indexed by the suffix array.
         """
         pos = []
-        for i in range(len(self.list)):
-            stir = self.doc[i:]
-            if searchstr == stir:
-                pos.append(i)
-            else:
-                for j in range(len(stir)):
-                    stirred = self.doc[i:j]
-                    if stirred == searchstr:
-                        pos.append(i)
+        sear = lambda x,y: 0 if self.doc[x:x+len(y)] == y else (-1 if self.doc[x:x+len(y)] < y else 1)
+        answer = mybinsearch(self.list,searchstr,sear)-1
+        pos.append(answer)
         return pos
+        #for i in range(len(self.list)):
+        #    stir = self.doc[i:].lower()
+        #    if searchstr.lower() == stir:
+        #        pos.append(i)
+        #    else:
+        #        for j in range(len(stir)):
+        #            stirred = self.doc[i:j].lower()
+        #            if stirred == searchstr.lower():
+        #                pos.append(i)
+        #return pos
 
     def contains(self, searchstr: str):
         """
         Returns true of searchstr is contained in document.
         """
-        sear = lambda i,j: 0 if self.doc[i:j] == self.doc[i:j] else (-1 if self.doc[i:j] < self.doc[i:j] else 1)
-        for i in range(len(self.list)):
-            stir = self.doc[i:]
-            if searchstr == stir:
-                return True
-            else:
-                for j in range(len(stir)):
-                    stirred = self.doc[i:j]
-                    if stirred == searchstr:
-                        return True
+        sear = lambda x,y: 0 if self.doc[x:x+len(y)] == y else (-1 if self.doc[x:x+len(y)] < y else 1)
+        answer = mybinsearch(self.list,searchstr,sear)
+        if answer != -1:
+            return True
         return False
 
 # 40 Points
@@ -251,7 +252,6 @@ def test3_1():
     print("\t-suffixarray on Hello World!")
     tc = unittest.TestCase()
     s = SuffixArray("Hello World!")
-    print(s.list)
     tc.assertTrue(s.contains("l"))
     tc.assertTrue(s.contains("e"))
     tc.assertFalse(s.contains("h"))
@@ -266,6 +266,9 @@ def test3_2():
     tc = unittest.TestCase()
     md_url = 'https://www.gutenberg.org/files/2701/2701-0.txt'
     md_text = urllib.request.urlopen(md_url).read().decode()
+    print(md_text[34:43])
+    print(md_text[346:355])
+    print(md_text[427:436])
     s = SuffixArray(md_text[0:1000])
     tc.assertTrue(s.contains("Moby Dick"))
     tc.assertTrue(s.contains("Herman Melville"))
