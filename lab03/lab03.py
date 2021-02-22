@@ -200,14 +200,6 @@ class SuffixArray():
             self.list.append(i)
         self.comparisoned = lambda x,y: 0 if document[x:] == document[y:] else (-1 if document[x:] < document[y:] else 1)
         self.lst = mysort(self.list,self.comparisoned)
-        #self.suffixed = []
-        #comp = lambda x,y: 0 if x == y else (-1 if x < y else 1)
-        #for i in range(0,len(document)):
-        #    sup = []
-        #    for j in range(i,len(document)):
-        #        sup.append(self.doc[i:j])
-        #        mysort(sup,comp)
-        #    self.suffixed.append(sup)
 
     def positions(self, searchstr: str):
         """
@@ -218,16 +210,6 @@ class SuffixArray():
         answer = mybinsearch(self.list,searchstr,sear)-1
         pos.append(answer)
         return pos
-        #for i in range(len(self.list)):
-        #    stir = self.doc[i:].lower()
-        #    if searchstr.lower() == stir:
-        #        pos.append(i)
-        #    else:
-        #        for j in range(len(stir)):
-        #            stirred = self.doc[i:j].lower()
-        #            if stirred == searchstr.lower():
-        #                pos.append(i)
-        #return pos
 
     def contains(self, searchstr: str):
         """
@@ -266,9 +248,6 @@ def test3_2():
     tc = unittest.TestCase()
     md_url = 'https://www.gutenberg.org/files/2701/2701-0.txt'
     md_text = urllib.request.urlopen(md_url).read().decode()
-    print(md_text[34:43])
-    print(md_text[346:355])
-    print(md_text[427:436])
     s = SuffixArray(md_text[0:1000])
     tc.assertTrue(s.contains("Moby Dick"))
     tc.assertTrue(s.contains("Herman Melville"))
