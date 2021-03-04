@@ -342,8 +342,8 @@ class ArrayList:
     def __iter__(self):
         """Supports iteration (via `iter(self)`)"""
         ### BEGIN SOLUTION
-        i = 0
-        yield self.__getitem__(i)
+        for i in range(self.len):
+            yield self.__getitem__(i)
         ### END SOLUTION
 
 ################################################################################
