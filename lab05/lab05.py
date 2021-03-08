@@ -42,18 +42,30 @@ class LinkedList:
         """Implements `x = self[idx]`"""
         assert(isinstance(idx, int))
         ### BEGIN SOLUTION
+        link = self.head
+        for i in range(idx):
+            link = link.next
+        return link
         ### END SOLUTION
 
     def __setitem__(self, idx, value):
         """Implements `self[idx] = x`"""
         assert(isinstance(idx, int))
         ### BEGIN SOLUTION
+        link = self.head
+        for i in range(idx):
+            link = link.next
+        link.val = value
         ### END SOLUTION
 
     def __delitem__(self, idx):
         """Implements `del self[idx]`"""
         assert(isinstance(idx, int))
         ### BEGIN SOLUTION
+        link = self.head
+        for i in range(idx):
+            link = link.next
+        link.prior.next = link.next
         ### END SOLUTION
 
     ### cursor-based access ###
@@ -62,11 +74,16 @@ class LinkedList:
         """retrieves the value at the current cursor position"""
         assert self.cursor is not self.head
         ### BEGIN SOLUTION
+        return self.cursor.val
         ### END SOLUTION
 
     def cursor_set(self, idx):
         """sets the cursor to the node at the provided index"""
         ### BEGIN SOLUTION
+        link = self.head
+        for i in range(idx):
+            link = link.next
+        self.cursor = link
         ### END SOLUTION
 
     def cursor_move(self, offset):
@@ -77,12 +94,23 @@ class LinkedList:
         node as needed"""
         assert len(self) > 0
         ### BEGIN SOLUTION
+        if offset > 0:
+            for i in range(offset):
+                self.cursor = self.cursor.next
+        elif offset < 0:
+            num = offset*-1
+            for i in range(num):
+                self.cursor = self.cursor.prior
         ### END SOLUTION
 
     def cursor_insert(self, value):
         """inserts a new value after the cursor and sets the cursor to the
         new node"""
         ### BEGIN SOLUTION
+        link = self.cursor.next
+        newlink = LinkedList.Node(value,self.cursor,link)
+        self.cursor.next = newlink
+        self.cursor = newlink
         ### END SOLUTION
 
     def cursor_delete(self):
@@ -90,6 +118,8 @@ class LinkedList:
         following node"""
         assert self.cursor is not self.head and len(self) > 0
         ### BEGIN SOLUTION
+        self.cursor = self.cursor.next
+        self.cursor.prior.prior = self.cursor
         ### END SOLUTION
 
     ### stringification ###
