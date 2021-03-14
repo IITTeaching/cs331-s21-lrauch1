@@ -96,7 +96,7 @@ class LinkedList:
     def cursor_set(self, idx):
         """sets the cursor to the node at the provided index"""
         ### BEGIN SOLUTION
-        link = self.head
+        link = self.head.next
         for i in range(idx):
             link = link.next
         self.cursor = link
@@ -113,9 +113,17 @@ class LinkedList:
         if offset > 0:
             for i in range(offset):
                 self.cursor = self.cursor.next
+                if self.cursor is self.head:
+                    self.cursor = self.cursor.next
+            if self.cursor is self.head:
+                self.cursor = self.cursor.next
         elif offset < 0:
             num = offset*-1
             for i in range(num):
+                self.cursor = self.cursor.prior
+                if self.cursor is self.head:
+                    self.cursor = self.cursor.prior
+            if self.cursor is self.head:
                 self.cursor = self.cursor.prior
         ### END SOLUTION
 
@@ -127,6 +135,8 @@ class LinkedList:
         newlink = LinkedList.Node(value,self.cursor,link)
         self.cursor.next = newlink
         self.cursor = newlink
+        link.prior = newlink
+        self.length+=1
         ### END SOLUTION
 
     def cursor_delete(self):
@@ -135,7 +145,14 @@ class LinkedList:
         assert self.cursor is not self.head and len(self) > 0
         ### BEGIN SOLUTION
         self.cursor = self.cursor.next
-        self.cursor.prior.prior.next = self.cursor
+        if self.cursor is self.head:
+            self.cursor = self.cursor.next
+            self.cursor.prior.prior.prior.next = self.cursor
+            self.cursor.prior = self.cursor.prior.prior.prior
+        else:
+            self.cursor.prior.prior.next = self.cursor
+            self.cursor.prior = self.cursor.prior.prior
+        self.length-=1
         ### END SOLUTION
 
     ### stringification ###
@@ -148,11 +165,17 @@ class LinkedList:
         ### BEGIN SOLUTION
         stir = '['
         head = self.cursor
-        i = 1
-        while i==1 or not head == self.cursor:
-            stir = str(head.val)
-            stir = stir + ', '
-            i-=1
+        if self.cursor is self.head:
+            head = head.next
+        else:
+            stir = stir + str(head.val) +', '
+            head = head.next
+
+        while not head == self.cursor:
+            if head.next == self.cursor:
+                stir = stir + str(head.val)
+                break
+            stir = stir + str(head.val) +', '
             head = head.next
         stir = stir + ']'
         return stir
@@ -163,11 +186,17 @@ class LinkedList:
         ### BEGIN SOLUTION
         stir = '['
         head = self.cursor
-        i = 1
-        while i==1 or not head == self.cursor:
-            stir = str(head.val)
-            stir = stir + ', '
-            i=0
+        if self.cursor is self.head:
+            head = head.next
+        else:
+            stir = stir + str(head.val) +', '
+            head = head.next
+
+        while not head == self.cursor:
+            if head.next == self.cursor:
+                stir = stir + str(head.val)
+                break
+            stir = stir + str(head.val) +', '
             head = head.next
         stir = stir + ']'
         return stir
@@ -180,14 +209,17 @@ class LinkedList:
         list, as needed. Note that inserting a value at len(self) --- equivalent
         to appending the value --- is permitted. Raises IndexError if idx is invalid."""
         ### BEGIN SOLUTION
-        head = self.cursor
+        idx = self._normalize_idx(idx)
+        if idx > len(self):
+            raise IndexError
+        head = self.head.next
         for i in range(idx):
             head = head.next
-            if head == self.cursor:
-                raise IndexError
         head = head.prior
         val = LinkedList.Node(value,head,head.next)
         head.next = val
+        val.next.prior = val
+        self.length+=1
         ### END SOLUTION
 
     def pop(self, idx=-1):
@@ -195,23 +227,24 @@ class LinkedList:
         by default)."""
         ### BEGIN SOLUTION
         ind = self._normalize_idx(idx)
-        head = self.cursor
-        for i in range(idx):
+        head = self.head.next
+        for i in range(ind):
             head = head.next
         head = head.prior
+        saved = head.next
         head.next = head.next.next
         head.next.prior = head
+        self.length-=1
+        return saved.val
         ### END SOLUTION
 
     def remove(self, value):
         """Removes the first (closest to the front) instance of value from the
         list. Raises a ValueError if value is not found in the list."""
         ### BEGIN SOLUTION
-        head = self.cursor
-        i=1
+        head = self.head.next
         valued = None
-        while i==1 or not head == self.cursor:
-            i = 0
+        while head is not self.head:
             if value == head.val:
                 valued = True
                 break
@@ -222,6 +255,7 @@ class LinkedList:
         else:
             head.prior.next = head.next
             head.next.prior = head.prior
+        self.length-=1
         
         ### END SOLUTION
 
@@ -231,8 +265,8 @@ class LinkedList:
         """Returns True if this LinkedList contains the same elements (in order) as
         other. If other is not an LinkedList, returns False."""
         ### BEGIN SOLUTION
-        head = self.cursor
-        hed  = other.cursor
+        head = self.head.next
+        hed  = other.head.next
         if not head.val == hed.val:
             return False
 
@@ -244,9 +278,9 @@ class LinkedList:
                 hed = hed.next
             else:
                 return False
-            if head == self.cursor or hed == other.cursor:
+            if head == self.head or hed == other.head:
                 break
-        if head == self.cursor and hed == other.cursor:
+        if head == self.head and hed == other.head:
             return True
         else:
             return False
@@ -256,7 +290,7 @@ class LinkedList:
     def __contains__(self, value):
         """Implements `val in self`. Returns true if value is found in this list."""
         ### BEGIN SOLUTION
-        head = self.cursor
+        head = self.head.next
         if head.val == value:
             return True
 
@@ -266,7 +300,7 @@ class LinkedList:
                 return True
             else:
                 head = head.next
-            if head == self.cursor:
+            if head == self.head:
                 break
         return False
         ### END SOLUTION
@@ -280,30 +314,31 @@ class LinkedList:
     def min(self):
         """Returns the minimum value in this list."""
         ### BEGIN SOLUTION
-        head = self.cursor
+        head = self.head.next
         val = head.val
         while True:
             head = head.next
+            if head == self.head:
+                break
             v = head.val
             if v < val:
                 val = v
-            if head == self.cursor:
-                break
+            
         return val
         ### END SOLUTION
 
     def max(self):
         """Returns the maximum value in this list."""
         ### BEGIN SOLUTION
-        head = self.cursor
+        head = self.head.next
         val = head.val
         while True:
             head = head.next
+            if head == self.head:
+                break
             v = head.val
             if v > val:
                 val = v
-            if head == self.cursor:
-                break
         return val
         ### END SOLUTION
 
@@ -313,37 +348,38 @@ class LinkedList:
         specified, search through the end of the list for value. If value
         is not in the list, raise a ValueError."""
         ### BEGIN SOLUTION
-        head = self.cursor
-        val = None
+        head = self.head.next
+        indexed = 0
+        i = self._normalize_idx(i)
         for k in range(i):
             head = head.next
-            if head == self.cursor:
-                raise ValueError
-        for g in range(j-i):
-            v = head.val
-            if v == value:
-                val = i+g
-                return val
-            if head == self.cursor:
-                raise ValueError
-
-        if val == None:
-            raise ValueError
-        else:
-            return val
+            indexed+=1
+        if not indexed == i:
+            raise IndexError
+        if j == None:
+            end = len(self)
+        else: 
+            end = self._normalize_idx(j)
+        while not indexed == end:
+            if head.val == value:
+                return indexed
+            else:
+                head = head.next
+                indexed+=1
+        raise ValueError
         ### END SOLUTION
 
     def count(self, value):
         """Returns the number of times value appears in this list."""
         ### BEGIN SOLUTION
-        head = self.cursor
+        head = self.head.next
         summat = 0
         while True:
             val = head.val
             if val == value:
                 summat+=1
             head = head.next
-            if head == self.cursor:
+            if head == self.head:
                 break
         return summat
         ### END SOLUTION
@@ -356,20 +392,22 @@ class LinkedList:
         of other."""
         assert(isinstance(other, LinkedList))
         ### BEGIN SOLUTION
-        head = self.cursor
-        past = head.prior
-        front = other.cursor
-        back = front.prior
-        back.next = head
-        head.prior = back
-        past.next = front
-        front.prior = past
+        link = LinkedList()
+        link.head.next = self.head
+        link.head.prior = other.head.prior
+        self.head.prior.next = other.head.next
+        other.head.next.prior = self.head.prior
+        link.length = other.length + self.length
+        return link
 
         ### END SOLUTION
 
     def clear(self):
         """Removes all elements from this list."""
         ### BEGIN SOLUTION
+        self.head.next = self.head
+        self.head.prior = self.head
+        self.length=0
         self.cursor = self.head
         ### END SOLUTION
 
