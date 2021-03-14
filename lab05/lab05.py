@@ -43,8 +43,11 @@ class LinkedList:
         """Implements `x = self[idx]`"""
         assert(isinstance(idx, int))
         ### BEGIN SOLUTION
-        link = self.head
-        for i in range(idx):
+        indx = self._normalize_idx(idx)
+        if indx >= self.length:
+            raise IndexError
+        link = self.head.next
+        for i in range(indx):
             link = link.next
         return link.val
         ### END SOLUTION
@@ -52,9 +55,12 @@ class LinkedList:
     def __setitem__(self, idx, value):
         """Implements `self[idx] = x`"""
         assert(isinstance(idx, int))
+        indx = self._normalize_idx(idx)
         ### BEGIN SOLUTION
-        link = self.head
-        for i in range(idx):
+        if indx >= self.length:
+            raise IndexError
+        link = self.head.next
+        for i in range(indx):
             link = link.next
         link.val = value
         ### END SOLUTION
@@ -62,11 +68,15 @@ class LinkedList:
     def __delitem__(self, idx):
         """Implements `del self[idx]`"""
         assert(isinstance(idx, int))
+        indx = self._normalize_idx(idx)
         ### BEGIN SOLUTION
-        link = self.head
-        for i in range(idx):
+        if indx >= self.length:
+            raise IndexError
+        link = self.head.next
+        for i in range(indx):
             link = link.next
         link.prior.next = link.next
+        link.prior.next.prior = link.prior
         ### END SOLUTION
 
     ### cursor-based access ###
