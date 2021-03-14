@@ -47,6 +47,11 @@ class LinkedList:
         if indx >= self.length:
             raise IndexError
         link = self.head.next
+        if idx < 0:
+            link = self.head.prior
+            for i in range(-idx-1):
+                link = link.prior
+            return link.val
         for i in range(indx):
             link = link.next
         return link.val
