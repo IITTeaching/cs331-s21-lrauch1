@@ -393,11 +393,15 @@ class LinkedList:
         assert(isinstance(other, LinkedList))
         ### BEGIN SOLUTION
         link = LinkedList()
-        link.head.next = self.head
-        link.head.prior = other.head.prior
-        self.head.prior.next = other.head.next
-        other.head.next.prior = self.head.prior
-        link.length = other.length + self.length
+        head1 = self.head.next
+        while not head1 == self.head:
+            link.append(head1.val)
+            head1 = head1.next
+    
+        head2 = other.head.next
+        while not head2 == other.head:
+            link.append(head2.val)
+            head2 = head2.next
         return link
 
         ### END SOLUTION
@@ -415,12 +419,12 @@ class LinkedList:
         """Returns a new LinkedList instance (with separate Nodes), that
         contains the same values as this list."""
         ### BEGIN SOLUTION
-        s = LinkedList
-        head = self.cursor
+        s = LinkedList()
+        head = self.head.next
         while True:
             s.append(head.val)
             head = head.next
-            if head == self.cursor:
+            if head == self.head:
                 break
         return s
         ### END SOLUTION
@@ -452,12 +456,12 @@ class LinkedList:
         E.g., for [1,2,3] you shoudl return [3,2,1].
         """
         ### BEGIN SOLUTION
-        s = LinkedList
-        head = self.cursor.prior
+        s = LinkedList()
+        head = self.head.prior
         while True:
             s.append(head.val)
             head = head.prior
-            if head == self.cursor.prior:
+            if head == self.head:
                 break
         return s
         ### END SOLUTION
