@@ -222,7 +222,6 @@ class Queue:
         self.data = [None] * limit
         self.head = -1
         self.tail = -1
-
     ### BEGIN SOLUTION
     ### END SOLUTION
 
@@ -258,10 +257,16 @@ class Queue:
     def resize(self, newsize):
         assert(len(self.data) < newsize)
         ### BEGIN SOLUTION
-        newArr = [None] * newsize
-        for i in range(len(self.data)):
-            newArr[i] = self.data[i]
-        self.data = newArr
+        oldArr = self.data
+        tail = self.tail
+        self.data = [None] * newsize 
+        for i in range(len(oldArr)):
+            ##len(oldArr) - i - 1
+            self.data[i] = oldArr[tail]
+            tail+=1
+            if tail >= len(oldArr):
+                tail = 0 
+        self.tail = 0
         ### END SOLUTION
 
     def empty(self):
@@ -285,8 +290,12 @@ class Queue:
 
     def __iter__(self):
         ### BEGIN SOLUTION
+        cur = self.tail
         for i in range(len(self.data)):
-            yield self.data[i]
+            yield self.data[cur]
+            cur+=1
+            if cur >= len(self.data):
+                cur = 0
         ### END SOLUTION
 
 
@@ -362,7 +371,7 @@ def test_queue_implementation_3():
 	    q.enqueue(10)
 
 	q.resize(10)
-
+    
 	for x, y in zip(q, range(4, 9)):
 	    tc.assertEqual(x, y)
 
