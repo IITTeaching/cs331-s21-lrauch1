@@ -49,6 +49,29 @@ def check_delimiters(expr):
     """Returns True if and only if `expr` contains only correctly matched delimiters, else returns False."""
     delim_openers = '{([<'
     delim_closers = '})]>'
+    s = Stack()
+    for c in expr:
+        if delim_openers.__contains__(c):
+            s.push(c)
+        elif delim_closers.__contains__(c):
+            try:
+                f = s.pop()
+                if f == "{":
+                    if c != "}":
+                        return False
+                elif f == "(":
+                    if c != ")":
+                        return False
+                elif f == "[":
+                    if c != "]":
+                        return False
+                elif f == "<":
+                    if c != ">":
+                        return False
+            except:
+                return False
+    return s.empty()
+    
 
     ### BEGIN SOLUTION
     ### END SOLUTION
@@ -111,6 +134,10 @@ def test_check_delimiters_6():
 ################################################################################
 # INFIX -> POSTFIX CONVERSION
 ################################################################################
+def isDigit(num):
+    if not (num == "+" or num == "*" or num == "-" or num == "/" or num == "(" or num == ")"):
+        return True
+    return False
 
 def infix_to_postfix(expr):
     """Returns the postfix form of the infix expression found in `expr`"""
@@ -121,6 +148,41 @@ def infix_to_postfix(expr):
     postfix = []
     toks = expr.split()
     ### BEGIN SOLUTION
+    for i in range(len(toks)):
+        t = toks[i]
+        if isDigit(t):
+            postfix.append(t)
+        elif ops.empty() or ops.peek() == "(":
+            ops.push(t)
+        elif t == "(":
+            ops.push(t)
+        elif t == ")":
+            while not ops.peek() == "(":
+                postfix.append(ops.pop())
+            ops.pop()
+        elif not ops.empty(): 
+            if prec[t] > prec[ops.peek()]:
+                ops.push(t)
+            elif prec[t] == prec[ops.peek()]:
+                postfix.append(ops.pop())
+                ops.push(t)
+            elif prec[t] < prec[ops.peek()]:
+                postfix.append(ops.pop())
+                f = 1
+                while f == 1 and not ops.empty():
+                    if prec[t] > prec[ops.peek()]:
+                        ops.push(t)
+                        f = 0
+                    elif prec[t] == prec[ops.peek()]:
+                        postfix.append(ops.pop())
+                        ops.push(t)
+                        f = 0
+                    elif prec[t] < prec[ops.peek()]:
+                        postfix.append(ops.pop())
+                ops.push(t)
+    while not ops.empty():
+        postfix.append(ops.pop())
+ 
     ### END SOLUTION
     return ' '.join(postfix)
 
@@ -160,25 +222,59 @@ class Queue:
         self.data = [None] * limit
         self.head = -1
         self.tail = -1
-
     ### BEGIN SOLUTION
     ### END SOLUTION
 
     def enqueue(self, val):
         ### BEGIN SOLUTION
+        if self.head == -1 or self.tail == -1 or self.empty():
+            self.tail = 0
+        self.head = self.head + 1
+        if self.head >= len(self.data):
+            self.head = 0
+        if not self.data[self.head] == None:
+            raise RuntimeError
+        self.data[self.head] = val
         ### END SOLUTION
 
     def dequeue(self):
         ### BEGIN SOLUTION
+        v = 0
+        if self.data[self.tail] == None:
+            raise RuntimeError
+        else:
+            v = self.data[self.tail]
+            self.data[self.tail] = None
+        self.tail = self.tail + 1
+        if self.tail >= len(self.data):
+            self.tail = 0
+        if self.empty():
+            self.tail = -1
+            self.head = -1
+        return v
         ### END SOLUTION
 
     def resize(self, newsize):
         assert(len(self.data) < newsize)
         ### BEGIN SOLUTION
+        oldArr = self.data
+        tail = self.tail
+        self.data = [None] * newsize 
+        for i in range(len(oldArr)):
+            ##len(oldArr) - i - 1
+            self.data[i] = oldArr[tail]
+            tail+=1
+            if tail >= len(oldArr):
+                tail = 0 
+        self.tail = 0
         ### END SOLUTION
 
     def empty(self):
         ### BEGIN SOLUTION
+        for i in range(len(self.data)):
+            if not self.data[i] == None:
+                return False
+        return True
         ### END SOLUTION
 
     def __bool__(self):
@@ -194,7 +290,14 @@ class Queue:
 
     def __iter__(self):
         ### BEGIN SOLUTION
+        cur = self.tail
+        for i in range(len(self.data)):
+            yield self.data[cur]
+            cur+=1
+            if cur >= len(self.data):
+                cur = 0
         ### END SOLUTION
+
 
 ################################################################################
 # QUEUE IMPLEMENTATION - TEST CASES
@@ -268,7 +371,7 @@ def test_queue_implementation_3():
 	    q.enqueue(10)
 
 	q.resize(10)
-
+    
 	for x, y in zip(q, range(4, 9)):
 	    tc.assertEqual(x, y)
 
