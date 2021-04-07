@@ -28,6 +28,12 @@ class Heap:
 
     def add(self, x):
         ### BEGIN SOLUTION
+        v = self.key(x)
+        done = 1
+        i = 0
+        while done == 1:
+            val = self.key(self.data[i])
+            if 
         ### END SOLUTION
 
     def peek(self):
@@ -130,6 +136,35 @@ def test_key_heap_5():
 ################################################################################
 def running_medians(iterable):
     ### BEGIN SOLUTION
+    minHeap = Heap()
+    maxHeap = Heap()
+    l = iter(iterable)
+    curMedian = None
+    median = []
+    while True:
+        try:
+            nextVal = None
+            if curMedian == None:
+                curMedian = next(l)
+                median.append(curMedian)
+            nextVal = next(l)
+            if nextVal < curMedian:
+                maxHeap.add(nextVal)
+            elif nextVal > curMedian:
+                minHeap.add(nextVal)
+            else:
+                if len(maxHeap) > len(minHeap):
+                    minHeap.add(nextVal)
+                else:
+                    maxHeap.add(nextVal)
+            if not len(maxHeap) == len(minHeap):
+                median.add(curMedian)
+            else:
+                curMedian = (maxHeap.peek() + minHeap.peek())/2
+                median.add(curMedian)
+        except StopIteration:
+            break
+    return median
     ### END SOLUTION
 
 ################################################################################
@@ -174,6 +209,17 @@ def test_median_3():
 ################################################################################
 def topk(items, k, keyf):
     ### BEGIN SOLUTION
+    revkey = lambda x: keyf(x) * -1
+    topHeap = Heap(revkey)
+    for i in range(len(items)):
+        v = items[i]
+        if len(topHeap) < k:
+            topHeap.add(v)
+        else:
+            t = topHeap.peek
+            if keyf(t) < keyf(v):
+                topHeap.pop()
+                topHeap.add(v)
     ### END SOLUTION
 
 ################################################################################
