@@ -53,6 +53,16 @@ class HBStree:
         KeyError, if key does not exist.
         """
         # BEGIN SOLUTION
+        cur = self.get_current_root()
+        while not cur == None:
+            v = cur.val
+            if v == key:
+                return key
+            if v < key:
+                cur = cur.right
+            else:
+                cur = cur.left
+        raise KeyError
         # END SOLUTION
 
     def __contains__(self, el):
@@ -60,6 +70,16 @@ class HBStree:
         Return True if el exists in the current version of the tree.
         """
         # BEGIN SOLUTION
+        cur = self.get_current_root()
+        while not cur == None:
+            v = cur.val
+            if v == el:
+                return True
+            if v < el:
+                cur = cur.right
+            else:
+                cur = cur.left
+        return False
         # END SOLUTION
 
     def insert(self,key):
@@ -69,11 +89,13 @@ class HBStree:
         from creating a new version.
         """
         # BEGIN SOLUTION
+
         # END SOLUTION
 
     def delete(self,key):
         """Delete key from the tree, creating a new version of the tree. If key does not exist in the current version of the tree, then do nothing and refrain from creating a new version."""
         # BEGIN SOLUTION
+
         # END SOLUTION
 
     @staticmethod
@@ -145,6 +167,7 @@ class HBStree:
         if timetravel < 0 or timetravel >= len(self.root_versions):
             raise IndexError(f"valid versions for time travel are 0 to {len(self.root_versions) -1}, but was {timetravel}")
         # BEGIN SOLUTION
+
         # END SOLUTION
 
     @staticmethod
