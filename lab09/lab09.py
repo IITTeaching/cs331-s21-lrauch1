@@ -89,8 +89,23 @@ class HBStree:
         from creating a new version.
         """
         # BEGIN SOLUTION
-
+        if not self.__contains__(key):
+            cur = self.get_current_root()
+            n = self.insertion(key,cur)
+            self.root_versions.append(n)
         # END SOLUTION
+
+    def insertion(self,key,t):
+        if t == None:
+            return self.INode(key,None,None)
+        elif key < t.val:
+            left = self.insertion(key,t.left)
+            noded = self.INode(t.val,left,t.right)
+            return noded
+        elif key > t.val:
+            right = self.insertion(key,t.right)
+            noded = self.INode(t.val,t.left,right)
+            return noded
 
     def delete(self,key):
         """Delete key from the tree, creating a new version of the tree. If key does not exist in the current version of the tree, then do nothing and refrain from creating a new version."""
