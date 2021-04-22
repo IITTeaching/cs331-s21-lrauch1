@@ -110,8 +110,42 @@ class HBStree:
     def delete(self,key):
         """Delete key from the tree, creating a new version of the tree. If key does not exist in the current version of the tree, then do nothing and refrain from creating a new version."""
         # BEGIN SOLUTION
-
+        if not self.__contains__(key):
+            cur = self.get_current_root()
+            n = self.deletion(key,cur)
+            self.root_versions.append(n)
         # END SOLUTION
+
+    def deletion(self,key,t):
+        if t == None:
+            return None
+        elif key == t.val:
+            noded = None
+            if not t.left == None and not t.right == None:
+                n = specialDelete(t.left)
+                if n[1] == 0:
+                    noded = self.INode(n.val,t.left.left,t.right)
+                else:
+                    noded = self.INode(n[1].val,n[0],t.right)
+            return noded
+        elif key > t.val:
+            right = self.deletion(key,t.right)
+            noded = self.INode(t.val,t.left,right)
+            return noded
+        elif key < t.val:
+            left = self.deletion(key,t.left)
+            noded = self.INode(t.val,left,t.right)
+            return noded
+
+    def specialDelete(self,t):
+        if t.right == None:
+            return (t,0)
+        elif t.right.right == None:
+            deled = t.right
+            return (self.INode(t.val,t.left,None),deled)
+        else:
+            cure = self.specialDelete(t)
+            return (self.INode(t.val,t.left,cure[0]),cure[1])
 
     @staticmethod
     def subtree_size(node):
@@ -182,8 +216,47 @@ class HBStree:
         if timetravel < 0 or timetravel >= len(self.root_versions):
             raise IndexError(f"valid versions for time travel are 0 to {len(self.root_versions) -1}, but was {timetravel}")
         # BEGIN SOLUTION
+        cur = self.root_versions[-timetravel-1]
+        listed = self.createStack(cur)
+        while not listed.empty():
+            yield listed.pop()
 
+
+    def createStack(self,node):
+        if node == None:
+            return None
+        else:
+            left = self.createStack(node.left)
+            node = node
+            right = self.createStack(node.right)
+            listed = []
+            for i in range(len(right)):
+                if not right[i] == None:
+                    listed.append(right[i].val)
+            listed.append(node.val)
+            for j in range(len(left)):
+                if not left[i] == None:
+                    listed.append(left[i].val)
+        return listed
+
+
+
+
+        #yield self.itera(cur)
         # END SOLUTION
+
+    #def itera(self,t):
+     #   if t.left == None:
+      #      yield t.val
+       # else:
+        #    yield self.itera(t.left)
+#
+ #       yield t.val
+#
+ #       if t.right == None:
+  #          yield t.val
+   #     else:
+    #        yield self.itera(t.right)
 
     @staticmethod
     def stringify_subtree(root):
