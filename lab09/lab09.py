@@ -122,9 +122,9 @@ class HBStree:
         elif key == t.val:
             noded = None
             if not t.left == None and not t.right == None:
-                n = specialDelete(t.left)
+                n = self.specialDelete(t.left)
                 if n[1] == 0:
-                    noded = self.INode(n.val,t.left.left,t.right)
+                    noded = self.INode(n[0].val,t.left.left,t.right)
                 else:
                     noded = self.INode(n[1].val,n[0],t.right)
             return noded
@@ -216,10 +216,11 @@ class HBStree:
         if timetravel < 0 or timetravel >= len(self.root_versions):
             raise IndexError(f"valid versions for time travel are 0 to {len(self.root_versions) -1}, but was {timetravel}")
         # BEGIN SOLUTION
-        cur = self.root_versions[-timetravel-1]
-        listed = self.createStack(cur)
-        while not listed.empty():
-            yield listed.pop()
+        cur = self.root_versions[len(self.root_versions)-timetravel-1]
+        lists = self.createStack(cur)
+        if not lists == None:
+            for i in range(len(lists)):
+                yield lists[len(lists)-i-1]
 
 
     def createStack(self,node):
@@ -230,13 +231,15 @@ class HBStree:
             node = node
             right = self.createStack(node.right)
             listed = []
-            for i in range(len(right)):
-                if not right[i] == None:
-                    listed.append(right[i].val)
+            if not right == None:
+                for i in range(len(right)):
+                    if not right[i] == None:
+                        listed.append(right[i])
             listed.append(node.val)
-            for j in range(len(left)):
-                if not left[i] == None:
-                    listed.append(left[i].val)
+            if not left == None:
+                for j in range(len(left)):
+                    if not left[j] == None:
+                        listed.append(left[j])
         return listed
 
 
@@ -321,7 +324,6 @@ def check_inserted(vals):
 
     for v in vals:
         t.insert(v)
-
     for i in range(0,len(vals) + 1):
         sortel = [ v for v in t.version_iter(len(vals) - i) ]
         sortval = sorted(vals[0:i])
