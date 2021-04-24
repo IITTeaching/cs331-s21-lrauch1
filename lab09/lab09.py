@@ -110,7 +110,7 @@ class HBStree:
     def delete(self,key):
         """Delete key from the tree, creating a new version of the tree. If key does not exist in the current version of the tree, then do nothing and refrain from creating a new version."""
         # BEGIN SOLUTION
-        if not self.__contains__(key):
+        if  self.__contains__(key):
             cur = self.get_current_root()
             n = self.deletion(key,cur)
             self.root_versions.append(n)
@@ -127,6 +127,10 @@ class HBStree:
                     noded = self.INode(n[0].val,t.left.left,t.right)
                 else:
                     noded = self.INode(n[1].val,n[0],t.right)
+            elif t.left == None and not t.right == None:
+                noded = self.INode(t.right.val,t.right.left,t.right.right)
+            elif t.right == None and not t.left == None:
+                noded = self.INode(t.left.val,t.left.left,t.left.right)
             return noded
         elif key > t.val:
             right = self.deletion(key,t.right)
