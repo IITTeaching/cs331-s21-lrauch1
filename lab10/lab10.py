@@ -30,6 +30,7 @@ class AVLTree:
     def __init__(self):
         self.size = 0
         self.root = None
+        self.fixMyCode = None
 
     @staticmethod
     def rebalance(t):
@@ -78,16 +79,22 @@ class AVLTree:
         ### BEGIN SOLUTION
         cur = self.root
         self.root = self.deleteHelper(val,cur)
+        if not self.fixMyCode == None:
+            self.forceRebalance(self.fixMyCode.val,self.root)
+            self.fixMyCode = None
         ### END SOLUTION
 
-    def completeRebalance(self,cur):
-        if not cur == None:
-            if not cur.left == None:
-                AVLTree.rebalance(cur.left)
-                self.completeRebalance(cur.left)
-            if not cur.right == None:
-                AVLTree.rebalance(cur.right)
-                self.completeRebalance(cur.right)
+    def forceRebalance(self,key,cur):
+        if cur == None:
+            return None
+        elif cur.val == key:
+            AVLTree.rebalance(cur)
+        elif key < cur.val:
+            self.forceRebalance(key,cur.left)
+            AVLTree.rebalance(cur)
+        elif key > cur.val:
+            self.forceRebalance(key,cur.right)
+            AVLTree.rebalance(cur)
 
     def deleteHelper(self,key,cur):
         if cur == None:
@@ -97,18 +104,15 @@ class AVLTree:
             self.size-=1
             if not cur.left == None and not cur.right == None:
                 n = self.specialDelete(cur.left)
-                if n[1] == 0:
-                    cur.left.right = cur.right
-                    noded = cur.left
-                else:
-                    n[1].left = cur.left
-                    n[1].right = cur.right
-                    noded = n[1]
+                print("special  " + str(n))
+                cur.val = n
+                cur.left = self.deleteHelper(n,cur.left)
+                noded = cur
+                self.fixMyCode = noded
             elif cur.left == None and not cur.right == None:
                 noded = cur.right
             elif cur.right == None and not cur.left == None:
                 noded = cur.left
-            self.completeRebalance(noded)
             return noded
         elif key > cur.val:
             right = self.deleteHelper(key,cur.right)
@@ -124,16 +128,9 @@ class AVLTree:
 
     def specialDelete(self,cur):
         if cur.right == None:
-            return (cur,0)
-        elif cur.right.right == None:
-            deled = cur.right
-            cur.right = deled.left
-            return (cur,deled)
+            return cur.val
         else:
-            cure = self.specialDelete(cur.right)
-            cur.right = cure[0]
-            AVLTree.rebalance(cur)
-            return (cur,cure[1])
+            return self.specialDelete(cur.right)
 
     def __contains__(self, val):
         def contains_rec(node):
@@ -180,6 +177,7 @@ class AVLTree:
                     nodes.append((n.right, level+1))
                 repr_str += '{val:^{width}}'.format(val=n.val, width=width//2**level)
         print(repr_str)
+        print()
 
     def height(self):
         """Returns the height of the longest branch of the tree."""
@@ -220,6 +218,7 @@ def NodePrint(t,width=64):
                 nodes.append((n.right, level+1))
             repr_str += '{val:^{width}}'.format(val=n.val, width=width//2**level)
     print(repr_str)
+    print()
     
 def traverse(t, fn):
     if t:
@@ -228,8 +227,16 @@ def traverse(t, fn):
         except AssertionError:
             NodePrint(t)
             raise AssertionError
-        traverse(t.left, fn)
-        traverse(t.right, fn)
+        try:
+            traverse(t.left, fn)
+        except AssertionError:
+            NodePrint(t)
+            raise EnvironmentError
+        try:
+            traverse(t.right, fn)
+        except AssertionError:
+            NodePrint(t)
+            raise EnvironmentError
 
 # LL-fix (simple) test
 # 10 points
@@ -307,7 +314,6 @@ def test_stress_testing():
     def check_balance(t):
         tc.assertLess(abs(height(t.left) - height(t.right)), 2, 'Tree is out of balance')
 
-    sum = 0
     t = AVLTree()
     vals = list(range(1000))
     random.shuffle(vals)
@@ -320,13 +326,12 @@ def test_stress_testing():
     random.shuffle(vals)
     for i in range(len(vals)):
         del t[vals[i]]
+        print(vals[i])
         for x in vals[i+1:]:
             tc.assertIn(x, t, 'Incorrect element removed from tree')
         for x in vals[:i+1]:
             tc.assertNotIn(x, t, 'Element removed still in tree')
         traverse(t.root, check_balance)
-        sum+=1
-        print(sum)
 
 
 
@@ -343,16 +348,33 @@ def say_success():
 # MAIN
 ################################################################################
 def main():
-    for t in [test_ll_fix_simple,
-              test_rr_fix_simple,
-              test_lr_fix_simple,
-              test_rl_fix_simple,
-              test_key_order_after_ops,
+    for t in [#test_ll_fix_simple,
+              #test_rr_fix_simple,
+              #test_lr_fix_simple,
+              #test_rl_fix_simple,
+              #test_key_order_after_ops,
               test_stress_testing]:
         say_test(t)
         t()
         say_success()
+    #stress()
     print(80 * "#" + "\nALL TEST CASES FINISHED SUCCESSFULLY!\n" + 80 * "#")
+
+
+def stress():
+    tc = TestCase()
+    t = AVLTree()
+    def check_balance(t):
+        tc.assertLess(abs(height(t.left) - height(t.right)), 2, 'Tree is out of balance')
+    for i in range(100):
+        t.add(i)
+        traverse(t.root, check_balance)
+    print()
+    for i in range(100):
+        del t[i]
+        traverse(t.root, check_balance)
+        print()
+    print("Done")
 
 if __name__ == '__main__':
     main()
