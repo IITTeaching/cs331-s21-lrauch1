@@ -199,9 +199,35 @@ def height(t):
     else:
         return max(1+height(t.left), 1+height(t.right))
 
+def NodePrint(t,width=64):
+    height = AVLTree.Node.height(t)
+    nodes  = [(t, 0)]
+    prev_level = 0
+    repr_str = ''
+    while nodes:
+        n,level = nodes.pop(0)
+        if prev_level != level:
+            prev_level = level
+            repr_str += '\n'
+        if not n:
+            if level < height-1:
+                nodes.extend([(None, level+1), (None, level+1)])
+            repr_str += '{val:^{width}}'.format(val='-', width=width//2**level)
+        elif n:
+            if n.left or level < height-1:
+                nodes.append((n.left, level+1))
+            if n.right or level < height-1:
+                nodes.append((n.right, level+1))
+            repr_str += '{val:^{width}}'.format(val=n.val, width=width//2**level)
+    print(repr_str)
+    
 def traverse(t, fn):
     if t:
-        fn(t)
+        try:
+            fn(t)
+        except AssertionError:
+            NodePrint(t)
+            raise AssertionError
         traverse(t.left, fn)
         traverse(t.right, fn)
 
@@ -281,6 +307,7 @@ def test_stress_testing():
     def check_balance(t):
         tc.assertLess(abs(height(t.left) - height(t.right)), 2, 'Tree is out of balance')
 
+    sum = 0
     t = AVLTree()
     vals = list(range(1000))
     random.shuffle(vals)
@@ -298,6 +325,8 @@ def test_stress_testing():
         for x in vals[:i+1]:
             tc.assertNotIn(x, t, 'Element removed still in tree')
         traverse(t.root, check_balance)
+        sum+=1
+        print(sum)
 
 
 
