@@ -104,7 +104,6 @@ class AVLTree:
             self.size-=1
             if not cur.left == None and not cur.right == None:
                 n = self.specialDelete(cur.left)
-                print("special  " + str(n))
                 cur.val = n
                 cur.left = self.deleteHelper(n,cur.left)
                 noded = cur
@@ -177,7 +176,6 @@ class AVLTree:
                     nodes.append((n.right, level+1))
                 repr_str += '{val:^{width}}'.format(val=n.val, width=width//2**level)
         print(repr_str)
-        print()
 
     def height(self):
         """Returns the height of the longest branch of the tree."""
@@ -197,46 +195,12 @@ def height(t):
     else:
         return max(1+height(t.left), 1+height(t.right))
 
-def NodePrint(t,width=64):
-    height = AVLTree.Node.height(t)
-    nodes  = [(t, 0)]
-    prev_level = 0
-    repr_str = ''
-    while nodes:
-        n,level = nodes.pop(0)
-        if prev_level != level:
-            prev_level = level
-            repr_str += '\n'
-        if not n:
-            if level < height-1:
-                nodes.extend([(None, level+1), (None, level+1)])
-            repr_str += '{val:^{width}}'.format(val='-', width=width//2**level)
-        elif n:
-            if n.left or level < height-1:
-                nodes.append((n.left, level+1))
-            if n.right or level < height-1:
-                nodes.append((n.right, level+1))
-            repr_str += '{val:^{width}}'.format(val=n.val, width=width//2**level)
-    print(repr_str)
-    print()
     
 def traverse(t, fn):
     if t:
-        try:
-            fn(t)
-        except AssertionError:
-            NodePrint(t)
-            raise AssertionError
-        try:
-            traverse(t.left, fn)
-        except AssertionError:
-            NodePrint(t)
-            raise EnvironmentError
-        try:
-            traverse(t.right, fn)
-        except AssertionError:
-            NodePrint(t)
-            raise EnvironmentError
+        fn(t)
+        traverse(t.left, fn)
+        traverse(t.right, fn)
 
 # LL-fix (simple) test
 # 10 points
@@ -326,7 +290,6 @@ def test_stress_testing():
     random.shuffle(vals)
     for i in range(len(vals)):
         del t[vals[i]]
-        print(vals[i])
         for x in vals[i+1:]:
             tc.assertIn(x, t, 'Incorrect element removed from tree')
         for x in vals[:i+1]:
@@ -348,33 +311,18 @@ def say_success():
 # MAIN
 ################################################################################
 def main():
-    for t in [#test_ll_fix_simple,
-              #test_rr_fix_simple,
-              #test_lr_fix_simple,
-              #test_rl_fix_simple,
-              #test_key_order_after_ops,
+    for t in [test_ll_fix_simple,
+              test_rr_fix_simple,
+              test_lr_fix_simple,
+              test_rl_fix_simple,
+              test_key_order_after_ops,
               test_stress_testing]:
         say_test(t)
         t()
         say_success()
-    #stress()
     print(80 * "#" + "\nALL TEST CASES FINISHED SUCCESSFULLY!\n" + 80 * "#")
 
 
-def stress():
-    tc = TestCase()
-    t = AVLTree()
-    def check_balance(t):
-        tc.assertLess(abs(height(t.left) - height(t.right)), 2, 'Tree is out of balance')
-    for i in range(100):
-        t.add(i)
-        traverse(t.root, check_balance)
-    print()
-    for i in range(100):
-        del t[i]
-        traverse(t.root, check_balance)
-        print()
-    print("Done")
 
 if __name__ == '__main__':
     main()
