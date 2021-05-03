@@ -99,7 +99,7 @@ class AVLTree:
                 noded = cur.right
             elif cur.right == None and not cur.left == None:
                 noded = cur.left
-            AVLTree.rebalance(cur)
+            AVLTree.rebalance(noded)
             return noded
         elif key > cur.val:
             right = self.deleteHelper(key,cur.right)
