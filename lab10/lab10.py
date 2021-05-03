@@ -80,6 +80,15 @@ class AVLTree:
         self.root = self.deleteHelper(val,cur)
         ### END SOLUTION
 
+    def completeRebalance(self,cur):
+        if not cur == None:
+            if not cur.left == None:
+                AVLTree.rebalance(cur.left)
+                self.completeRebalance(cur.left)
+            if not cur.right == None:
+                AVLTree.rebalance(cur.right)
+                self.completeRebalance(cur.right)
+
     def deleteHelper(self,key,cur):
         if cur == None:
             return None
@@ -99,7 +108,7 @@ class AVLTree:
                 noded = cur.right
             elif cur.right == None and not cur.left == None:
                 noded = cur.left
-            AVLTree.rebalance(noded)
+            self.completeRebalance(noded)
             return noded
         elif key > cur.val:
             right = self.deleteHelper(key,cur.right)
