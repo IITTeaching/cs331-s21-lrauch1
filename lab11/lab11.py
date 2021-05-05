@@ -40,8 +40,29 @@ def pivot_random(lst,low,high):
 
 def pivot_median_of_three(lst,low,high):
     ### BEGIN SOLUTION
-    pass
+    m = median(lst, low, ((low + high) // 2), high)
+    pivot = lst[m]
+    lst[m],lst[low] = lst[low], lst[m]
+    i = high
+    for j in range(high,low,-1):
+        if lst[j] > pivot:
+            lst[i], lst[j] = lst[j], lst[i]
+            i = i-1
+    lst[i],lst[low] = lst[low], lst[i]
+    return i
     ### END SOLUTION
+
+def median(lst,i,j,k):
+    u = lst[i]
+    v = lst[j]
+    w = lst[k]
+    if ( u < v and u > w ) or ( u > v and u < w):
+        return i
+    elif ( v < u and v > w ) or ( v > u and v < w):
+        return j
+    elif ( u < w and v > w ) or ( w > u and v > w):
+        return k
+    return i
 
 ################################################################################
 # TEST CASES
